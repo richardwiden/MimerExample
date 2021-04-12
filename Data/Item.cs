@@ -13,13 +13,13 @@ namespace MimerExample.Data
         }
         public int ItemId { get; set; }
         public int ProductId {get; set;}
-        public string Product { get; internal set; }
-        public int ProducerId { get; internal set; }
-        public string Producer { get; internal set; }
-        public int FormatId { get; internal set; }
-        public string Format { get; internal set; }
-        public int CategoryId { get; internal set; }
-        public string Category { get; internal set; }
+        public string Product { get; set; }
+        public int ProducerId { get; set; }
+        public string Producer { get; set; }
+        public int FormatId { get; set; }
+        public string Format { get; set; }
+        public int CategoryId { get; set; }
+        public string Category { get; set; }
     }
 }
 
