@@ -1,0 +1,111 @@
+﻿@page "/products"
+@page "/products/sort/{orderby}/{asc}"
+
+@using MimerExample.Data
+@using Microsoft.AspNetCore.Mvc
+@inject MimerExampleService MimerExampleService
+@functions {
+
+}
+<h1>Mimer Example Store - Products</h1>
+
+<p>These products are not available to buy.</p>
+
+@if (items == null && error == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (items == null && error != null)
+{
+    <p><em>@error</em></p>
+}
+else
+{
+    <input @bind = "InputValue" />
+    <table class="table">
+        <thead>
+            <tr>
+                <th><a href="#" @onclick="e =>ChangeSort(Item.OrderBy.ItemId)" @onclick:preventDefault>@Item.OrderBy.ItemId.ToString()</a></th>
+                <th><a href="#" @onclick="e =>ChangeSort(Item.OrderBy.ProductId)" @onclick:preventDefault>@Item.OrderBy.ProductId.ToString()</a></th>
+                <th><a href="#" @onclick="e =>ChangeSort(Item.OrderBy.Product)" @onclick:preventDefault>@Item.OrderBy.Product.ToString()</a></th>
+                <th><a href="#" @onclick="e =>ChangeSort(Item.OrderBy.Producer)" @onclick:preventDefault>@Item.OrderBy.Producer.ToString()</a></th>
+                <th><a href="#" @onclick="e =>ChangeSort(Item.OrderBy.Format)" @onclick:preventDefault>@Item.OrderBy.Format.ToString()</a></th>
+                <th><a href="#" @onclick="e =>ChangeSort(Item.OrderBy.Category)" @onclick:preventDefault>@Item.OrderBy.Category.ToString()</a></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in items)
+            {
+                <tr>
+                    <td>@item.ItemId</td>
+                    <td>@item.ProductId</td>
+                    <td>@item.Product</td>
+                    <td>@item.Producer</td>
+                    <td>@item.Format</td>
+                    <td>@item.Category</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public String asc { get; set; }
+    public Boolean Asc
+    {
+        get
+        {
+            Boolean val;
+            return Boolean.TryParse(asc, out val) ? val : true;
+        }
+        set
+        {
+            asc = value.ToString();
+        }
+    }
+
+    [Parameter]
+    public String orderby { get; set; }
+    public Item.OrderBy OrderBy
+    {
+        get
+        {
+            Int16 val;
+            return Int16.TryParse(orderby, out val) ? (Item.OrderBy)val : Item.OrderBy.ItemId;
+        }
+        set
+        {
+            orderby = ((Int16)value).ToString();
+        }
+    }    
+    private string InputValue { get; set; }
+
+    private Item[] items;
+    private String error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await reloadItems();
+    }
+    private async Task reloadItems()
+    {
+        try
+        {
+            items = await MimerExampleService.GetItems(OrderBy, Asc);
+        }
+        catch (Exception ex)
+        {
+            items = null;
+            error = ex.Message;
+        }
+    }
+    private async Task ChangeSort(Item.OrderBy orderBy)
+    {
+        Asc = orderBy == OrderBy ? !Asc : Asc;
+        OrderBy = orderBy;
+
+        await reloadItems();
+    }
+
+}
